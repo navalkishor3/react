@@ -1,0 +1,30 @@
+{
+  "name": "nameste-react",
+  "version": "1.0.0",
+  "description": "This react project by naval kishor",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html",
+    "test": "jest"
+  },
+  "keywords": [
+    "react",
+    "naval",
+    "kishor",
+    "delhi"
+  ],
+  "author": "naval kishor",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.12.0",
+    "process": "^0.11.10"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.1"
+  },
+  "browserslist": [
+    "last 2 versions"
+  ]
+}
