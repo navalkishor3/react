@@ -1,63 +1,58 @@
-//import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import useRestaurantMenu from "../utils/useRestaurantMenu";
 // import { DESKTOP_WEB_LISTING_DETAIL_URL } from "../utils/constant";
 import Shimmer from "./Shimmer";
+import RestaurantCategory from "./RestaurantCategory";
 const RestaurantMenu = () => {
   // const [restaurantInfo, setRestaurantInfo] = useState(null);
+  const [showIndex, setShowIndex] = useState(0);
+
+  // const onSetShowIndex = (i) => {
+  //   setShowIndex(i);
+  // };
   const { restId } = useParams();
   const restaurantInfo = useRestaurantMenu(restId);
-  // console.log(restId);
-  /*
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-
-
-  const fetchData = async () => {
-    const data = await fetch(DESKTOP_WEB_LISTING_DETAIL_URL + restId);
-    const dataJson = await data.json();
-
-    // console.log(dataJson?.data?.cards);
-    setRestaurantInfo(dataJson?.data?.cards);
-
-    //  console.log(restaurantInfo);
-  };
-
-    */
-  //console.log(restaurantInfo[2]?.card?.card?.info);
-  //   const { name, cuisines, costForTwoMessage } =
-  //     restaurantInfo[2]?.card?.card?.info;
   if (!restaurantInfo) return <Shimmer />;
   const restInfo = restaurantInfo && restaurantInfo[2]?.card?.card?.info;
-  const itemCards =
-    restaurantInfo[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[2]?.card?.card
-      ?.itemCards ||
-    restaurantInfo[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1]?.card?.card
-      ?.itemCards;
-  // console.log(itemCards);
+
+  const cards = restaurantInfo[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards;
+
+  let itemCards = null; // Initialize with null
+  let categoriesCard = null;
+
+  if (cards) {
+    for (let i = 0; i < cards.length; i++) {
+      itemCards = cards[i]?.card?.card?.itemCards;
+      if (itemCards) {
+        break; // Exit the loop when itemCards are found
+      }
+    }
+  }
+
+  categoriesCard = cards.filter((card) => {
+    return card?.card?.card?.categories;
+  });
+
+  //console.log(categoriesCard);
+
+  // console.log(restaurantInfo[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards);
   return (
-    <div className="menu">
-      <h1>{restInfo && restInfo.name}</h1>
-      <h5>
+    <div className="m-4 p-2 text-center">
+      <h1 className="font-bold text-2xl">{restInfo && restInfo.name}</h1>
+      <p className="font-bold ">
         {restInfo && restInfo.cuisines?.join(", ")} -{" "}
         {restInfo && restInfo.costForTwoMessage}
-      </h5>
-
-      <h2>Menu</h2>
-      <ul>
-        {itemCards &&
-          itemCards.map((item) => {
-            return (
-              <li key={item.card.info.id}>
-                {item.card.info.name} - Rs{" "}
-                {(item?.card?.info?.defaultPrice || item?.card?.info?.price) /
-                  100}
-              </li>
-            );
-          })}
-      </ul>
+      </p>
+      {categoriesCard.map((category, index) => (
+        <RestaurantCategory
+          key={category.card.card.title}
+          categoryData={category.card.card}
+          showItem={index == showIndex && true}
+          setShowIndex={() => setShowIndex(index)}
+        />
+      ))}
     </div>
   );
 };

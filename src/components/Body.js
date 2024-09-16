@@ -1,8 +1,9 @@
-import RestaurantCard from "./RestaurantCard";
-import { useState, useEffect } from "react";
+import RestaurantCard, { withPromptedLabel } from "./RestaurantCard";
+import { useState, useEffect, useContext } from "react";
 import Shimmer from "./Shimmer";
 import { DESKTOP_WEB_LISTING_URL } from "../utils/constant";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
   // local state variable
@@ -12,6 +13,11 @@ const Body = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const userInfo = useContext(UserContext);
+  //console.log(userInfo);
+
+  const RestaurantCardPromoted = withPromptedLabel(RestaurantCard);
 
   const fetchData = async () => {
     const data = await fetch(DESKTOP_WEB_LISTING_URL);
@@ -37,21 +43,23 @@ const Body = () => {
     <Shimmer />
   ) : (
     <div className="body">
-      <div className="filter">
-        <div className="search">
+      <div className="flex">
+        <div className="search m-1  ml-2">
           <input
             type="text"
-            className="search-box"
+            data-testid="searchInput"
+            className="border border-solid border-black"
             value={searchText}
             onChange={(e) => {
               setSearchText(e.target.value);
             }}
           />
           <button
+            className="px-4 py-0.7 bg-gray-100 m-4 rounded-lg border border-black border-solid"
             onClick={() => {
-              console.log(searchText);
+              //   console.log(searchText);
               let fileterListOfRestaurant = ListOfRestaurant.filter((resta) => {
-                console.log(resta.info.name);
+                //  console.log(resta.info.name);
                 return (
                   resta.info.name
                     .toLowerCase()
@@ -64,24 +72,44 @@ const Body = () => {
           >
             Search
           </button>
+          <button
+            className="px-4 py-0.7 bg-gray-100 rounded-lg border border-black border-solid"
+            onClick={() => {
+              let filterData = ListOfRestaurant.filter(
+                (rest) => rest.info.avgRating >= 4.4
+              );
+              setfilterListOfRestaurant(filterData);
+            }}
+          >
+            Top Rated Restaurants{" "}
+          </button>
+          <label className="mx-3">
+            User Name:{" "}
+            <input
+              type="text"
+              className="border border-black"
+              value={userInfo.loggedInUser}
+              onChange={(e) => userInfo.setUserInfo(e.target.value)}
+            />
+          </label>
         </div>
-        <button
-          className="filter-btn"
-          onClick={() => {
-            filterData = ListOfRestaurant.filter(
-              (rest) => rest.info.avgRating > 4.5
-            );
-            setfilterListOfRestaurant(filterData);
-          }}
-        >
-          Top Rated Restaurants{" "}
-        </button>
       </div>
 
-      <div className="res-container">
-        {filterListOfRestaurant.map((restaurant) => (
-          <RestaurantCard key={restaurant.info.id} resData={restaurant} />
-        ))}
+      <div className="flex flex-wrap">
+        {filterListOfRestaurant.map((restaurant) => {
+          // console.log(restaurant.info.avgRating);
+          if (restaurant.info.avgRating >= 4.4) {
+            return (
+              <RestaurantCardPromoted
+                key={restaurant.info.id}
+                resData={restaurant}
+              />
+            );
+          }
+          return (
+            <RestaurantCard key={restaurant.info.id} resData={restaurant} />
+          );
+        })}
       </div>
     </div>
   );
